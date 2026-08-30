@@ -3,6 +3,7 @@ import { pageHead, card, btn, badge, statusBadge, stat, empty, select, simpleTab
 import { dataTable } from '../core/ui/table.js';
 import { drawer, modal, toast, confirm } from '../core/ui/overlay.js';
 import { moduleIntro } from './_shared.js';
+import { saveFile } from '../core/download.js';
 import * as F from '../core/format.js';
 
 const SECTIONS = [
@@ -174,12 +175,11 @@ export default {
         card({ title: 'Export everything', sub: 'One JSON file containing every table' },
           h('p.small.muted', `${db.tables().length} tables, ${F.num(db.tables().reduce((s, t) => s + db.count(t), 0))} rows.`),
           h('div.row.mt-3',
-            btn('Download JSON', { icon: '↓', onclick: () => {
-              const blob = new Blob([JSON.stringify(db.dump(), null, 2)], { type: 'application/json' });
-              const a = document.createElement('a');
-              a.href = URL.createObjectURL(blob); a.download = 'fareharbor-export.json';
-              document.body.append(a); a.click(); a.remove();
-              toast('Full export downloaded', { tone: 'ok' });
+            btn('Download JSON', { icon: '↓', onclick: async () => {
+              const result = await saveFile('fareharbor-export.json',
+                JSON.stringify(db.dump(), null, 2), 'application/json');
+              if (result === 'saved') toast('Full export downloaded', { tone: 'ok' });
+              else if (result === 'failed') toast('Export unavailable here', { detail: 'Downloads are not permitted in this view.', tone: 'warn' });
             } }),
             btn('Regenerate demo data', { kind: 'danger', onclick: () => confirm({
               title: 'Regenerate the whole dataset?',

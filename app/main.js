@@ -60,8 +60,9 @@ const MODULES = [
 ];
 
 /* ---------------------------------------------------------------- boot */
+const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
 const store = createStore({
-  theme: persisted('fh.theme', 'light'),
+  theme: persisted('fh.theme', prefersDark ? 'dark' : 'light'),
   sidebarCollapsed: persisted('fh.sidebarCollapsed', false),
   currentUser: null,
   dateRange: { from: addDays(today(), -29), to: today() },

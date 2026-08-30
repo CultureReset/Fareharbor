@@ -21,6 +21,7 @@ import { h, mount } from '../dom.js';
 import { btn, empty, select as selectEl } from './kit.js';
 import { num } from '../format.js';
 import { toast } from './overlay.js';
+import { saveFile, toCsv } from '../download.js';
 
 export function dataTable(cfg) {
   const {
@@ -87,18 +88,18 @@ export function dataTable(cfg) {
     render();
   }
 
-  function exportCsv(allRows) {
+  async function exportCsv(allRows) {
     const cols = columns.filter(c => c.export !== false);
-    const head = cols.map(c => `"${String(c.label).replace(/"/g, '""')}"`).join(',');
-    const body = allRows.map(r => cols.map(c => {
-      const v = c.value ? c.value(r) : r[c.key];
-      const s = c.exportFmt ? c.exportFmt(r) : (v == null ? '' : String(v));
-      return `"${s.replace(/"/g, '""')}"`;
-    }).join(',')).join('\n');
-    const blob = new Blob([head + '\n' + body], { type: 'text/csv' });
-    const a = h('a', { href: URL.createObjectURL(blob), download: `${exportName}.csv` });
-    document.body.append(a); a.click(); a.remove();
-    toast('Export ready', { detail: `${allRows.length} rows written to ${exportName}.csv`, tone: 'ok' });
+    const csv = toCsv(
+      cols.map(c => c.label),
+      allRows.map(r => cols.map(c => {
+        if (c.exportFmt) return c.exportFmt(r);
+        const v = c.value ? c.value(r) : r[c.key];
+        return v == null ? '' : String(v);
+      })));
+    const result = await saveFile(`${exportName}.csv`, csv, 'text/csv');
+    if (result === 'saved') toast('Export ready', { detail: `${num(allRows.length)} rows written to ${exportName}.csv`, tone: 'ok' });
+    else if (result === 'failed') toast('Export unavailable here', { detail: 'Downloads are not permitted in this view.', tone: 'warn' });
   }
 
   function render() {

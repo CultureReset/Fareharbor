@@ -4,6 +4,7 @@ import { dataTable } from '../core/ui/table.js';
 import { modal, toast, drawer } from '../core/ui/overlay.js';
 import { barChart, rankBars, donut, legend, sparkline, heatmap, stackedBar, seriesColor } from '../core/ui/chart.js';
 import { moduleIntro, rangePicker, rangeOf, openBooking } from './_shared.js';
+import { saveFile, toCsv } from '../core/download.js';
 import * as F from '../core/format.js';
 
 /**
@@ -274,14 +275,13 @@ export default {
   },
 };
 
-function exportReport(dim, ds, measureIds, groups) {
-  const head = [dim.label, ...measureIds.map(m => ds.measures[m].label)].join(',');
-  const body = groups.map(g => [JSON.stringify(String(g.key)), ...measureIds.map(m => g[m])].join(',')).join('\n');
-  const blob = new Blob([head + '\n' + body], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'report.csv';
-  document.body.append(a); a.click(); a.remove();
-  toast('Report exported', { detail: `${groups.length} rows`, tone: 'ok' });
+async function exportReport(dim, ds, measureIds, groups) {
+  const csv = toCsv(
+    [dim.label, ...measureIds.map(m => ds.measures[m].label)],
+    groups.map(g => [g.key, ...measureIds.map(m => g[m])]));
+  const result = await saveFile('report.csv', csv, 'text/csv');
+  if (result === 'saved') toast('Report exported', { detail: `${groups.length} rows`, tone: 'ok' });
+  else if (result === 'failed') toast('Export unavailable here', { detail: 'Downloads are not permitted in this view.', tone: 'warn' });
 }
 
 function saveReport(ctx, cfg) {

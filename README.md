@@ -17,6 +17,14 @@ python3 -m http.server 8000     # or: npx serve .  — any static server
 (Opening the file directly with `file://` will not work — ES modules need an
 origin. Any static server does.)
 
+There is also a **single-file build** at `dist/prototype.html` — the whole
+application, all 45 modules and every stylesheet, packed into one HTML file with
+no external references. Rebuild it with:
+
+```bash
+node tools/bundle.mjs > dist/prototype.html
+```
+
 ---
 
 ## What this is
@@ -170,6 +178,17 @@ docs/                       The written map.
 | `\` | Collapse the sidebar |
 | `G` then `H` `B` `C` `I` `R` `T` | Home, Bookings, Calendar, Items, Reports, Today |
 | `Esc` | Close the top drawer, modal or menu |
+
+---
+
+## Tooling
+
+Two small scripts, neither of which the application depends on:
+
+| Script | Does |
+|---|---|
+| `node tools/gen-docs.mjs > docs/DATA-MODEL.md` | Regenerates the schema reference from `app/data/schema.js` |
+| `node tools/bundle.mjs > dist/prototype.html` | Packs the app into one self-contained HTML file |
 
 ---
 

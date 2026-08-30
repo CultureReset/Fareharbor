@@ -5,6 +5,7 @@ import { drawer, modal } from '../core/ui/overlay.js';
 import { rankBars } from '../core/ui/chart.js';
 import { SCHEMA, TABLES, GROUPS, relationships, dependents } from '../data/schema.js';
 import { moduleIntro } from './_shared.js';
+import { saveFile } from '../core/download.js';
 import * as F from '../core/format.js';
 
 const TYPE_TONE = {
@@ -109,11 +110,8 @@ export default {
       pageHead({
         title: 'Data Model',
         sub: `${SCHEMA.length} tables · ${edges.length} foreign keys · ${F.num(totalRows)} rows loaded`,
-        actions: [btn('Download schema JSON', { icon: '↓', onclick: () => {
-          const blob = new Blob([JSON.stringify(SCHEMA, null, 2)], { type: 'application/json' });
-          const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-          a.download = 'fareharbor-schema.json'; document.body.append(a); a.click(); a.remove();
-        } })],
+        actions: [btn('Download schema JSON', { icon: '↓', onclick: () =>
+          saveFile('fareharbor-schema.json', JSON.stringify(SCHEMA, null, 2), 'application/json') })],
       }),
       moduleIntro(this, 'This page is generated from app/data/schema.js — the same declaration the seed generator and the tables read. Add a field there and it appears here, typed and documented.'),
       h('div.grid.c4.mb-4',
