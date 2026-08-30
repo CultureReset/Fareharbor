@@ -30,7 +30,9 @@
 .btn.sm { padding: 4px 9px; font-size: var(--fs-sm); }
 .btn.lg { padding: 10px 18px; font-size: var(--fs-lg); }
 .btn.block { width: 100%; }
-.btn-group { display: inline-flex; }
+.btn-group { display: inline-flex; min-width: 0; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.btn-group::-webkit-scrollbar { display: none; }
+.btn-group .btn { flex: none; }
 .btn-group .btn { border-radius: 0; margin-left: -1px; }
 .btn-group .btn:first-child { border-radius: var(--r-md) 0 0 var(--r-md); margin-left: 0; }
 .btn-group .btn:last-child { border-radius: 0 var(--r-md) var(--r-md) 0; }
